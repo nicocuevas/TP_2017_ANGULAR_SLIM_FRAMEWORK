@@ -1,0 +1,46 @@
+<div class="card">
+  <h4 class="card-header">Users</h4>
+  <div class="card-body">
+    <ngx-datatable
+        class="material"
+        [rows]="users | async"
+        [columnMode]="'force'"
+        [headerHeight]="50"
+        [footerHeight]="50"
+        [rowHeight]="'auto'">
+        <ngx-datatable-column name="FirstName">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            {{value}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="LastName">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            {{value}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Email">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            {{value}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="UserGroups">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            {{value['0']['name']}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="LockUser">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            {{value}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Action">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <button md-raised-button color="accent" (click)="edit(row['id'])"><i class="material-icons">mode_edit</i></button>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+      <span class="app-action">
+          <button md-fab (click)="add()"><md-icon>add circle</md-icon></button>
+      </span>
+   </div>
+</div>

@@ -1,0 +1,23 @@
+<div class="center">
+<md-card class="">
+  <p *ngIf="showError">
+    <ngb-alert [dismissible]="false">
+      <strong>Warning!</strong> Invalid Username or Password.
+    </ngb-alert>
+  </p>
+  <img src="../assets/images/icon-parking.png">
+  <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+  <md-input-container>
+    <input mdInput placeholder="Username"  [(ngModel)]="user.username" name="username"  #loginForm="ngModel">
+  </md-input-container>
+  
+  <p>
+    <md-input-container>
+      <input mdInput placeholder="Password" [(ngModel)]="user.password" name="password" type="password" #loginForm="ngModel">
+    </md-input-container>
+  </p>
+ <button md-raised-button type="submit">Login</button>
+ </form>
+
+</md-card>
+</div>

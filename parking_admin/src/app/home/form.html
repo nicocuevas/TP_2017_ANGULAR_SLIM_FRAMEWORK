@@ -1,0 +1,73 @@
+<md-card>
+      <div>
+      <h2>New User</h2>
+      <span class="app-toolbar-filler"></span>
+      <button md-button></button>
+      </div>
+        <form [formGroup]="formView"  (ngSubmit)="save()">
+
+         <!-- form inputs -->
+          <div class="row">
+           <div class="col-md-4">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" class="form-control"
+                       formControlName="firstName" required >
+                 <div *ngIf="formErrors.firstName" class="alert alert-danger">
+                  {{ formErrors.firstName }}
+                  </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+
+            </div>
+            <!-- end form inputs -->
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+               <button class="pull-right" md-raised-button color="accent" [disabled]="!formView.valid" (click)="save()">Save</button>
+               <button class="pull-right" md-raised-button color="primary"(click)="back()">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      
+    </md-card>
+
+
+<form [formGroup]="form"  *ngIf="active"  (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="name">Name</label>
+
+        <input type="text" id="name" class="form-control"
+               formControlName="name" required >
+
+        <div *ngIf="formErrors.name" class="alert alert-danger">
+          {{ formErrors.name }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="alterEgo">Alter Ego</label>
+        <input type="text" id="alterEgo" class="form-control"
+            formControlName="alterEgo"  >
+      </div>
+
+      <div class="form-group">
+        <label for="power">Hero Power</label>
+        <select id="power" class="form-control"
+            formControlName="power" required >
+          <option *ngFor="let p of powers" [value]="p">{{p}}</option>
+        </select>
+
+        <div *ngIf="formErrors.power" class="alert alert-danger">
+          {{ formErrors.power }}
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-default"
+             [disabled]="!heroForm.valid">Submit</button>
+      <button type="button" class="btn btn-default"
+             (click)="addHero()">New Hero</button>
+    </form>

@@ -1,0 +1,334 @@
+<div class="card">
+  <h4 class="card-header">Manage Parking</h4>
+  <div class="card-body">
+      <md-tab-group [(selectedIndex)]="tabIndex" (focusChange)="getRentedLotes($event)">
+        <md-tab label="IN - VEHICLE">
+          <md-card *ngIf="searchForm" class="page-default">
+          <div class="row page">
+             <div class="col-md-3">
+               <h3>Search Vehicle</h3>
+               <div class="form-group">
+                  <div class="form-group">
+                    <input id="typeahead-http" type="text" class="form-control" 
+                    [class.is-invalid]="searchFailed"
+                    (ngModelChange)="selectItem($event)"
+                    [(ngModel)]="model" 
+                    [ngbTypeahead]="search" 
+                    [inputFormatter]="formatter"
+                    [resultFormatter]="formatter"
+                    placeholder="Enter plate ej: AUX123" 
+                    />
+                    <span *ngIf="searching">searching...</span>
+                    <div class="invalid-feedback" *ngIf="searchFailed">Sorry, suggestions could not be loaded.</div>
+                  </div>
+               </div>
+             </div>
+             <div class="col-md-9">
+                  <ngx-datatable
+                    class="material"
+                    [rows]="vehicle"
+                    [headerHeight]="50"
+                    [footerHeight]="50"
+                    [rowHeight]="'auto'">
+                    <ngx-datatable-column name="id" [width]="100"></ngx-datatable-column>
+                    <ngx-datatable-column name="customer" [width]="100">
+                      <ng-template let-value="value" ngx-datatable-cell-template>
+                        {{value.firstName}} {{value.lastName}}
+                      </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="plate" [width]="100"></ngx-datatable-column>
+                    <ngx-datatable-column name="brand" [width]="100">
+                      <ng-template let-value="value" ngx-datatable-cell-template>
+                        {{value.name}}
+                      </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="vehicleType" [width]="100">
+                      <ng-template let-value="value" ngx-datatable-cell-template>
+                        {{value.name}}
+                      </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Action">
+                      <ng-template let-row="row" ngx-datatable-cell-template>
+                        <button md-raised-button color="accent" (click)="showCheckin()">CHECK IN</button>
+                      </ng-template>
+                    </ngx-datatable-column>
+                  </ngx-datatable>
+                  <span class="app-action">
+                      <button md-fab routerLink="../customers/add"><md-icon>add circle</md-icon></button>
+                  </span>
+             </div>
+           </div>
+          </md-card>
+          <md-card *ngIf="checkinForm">
+            <button md-raised-button class="pull-right" color="primary" (click)="backSearchForm()">BACK</button>
+            <h3>CHECK-IN: Select Lot</h3>
+            <ngb-pagination *ngIf="pagination.total_items > 0"
+              class=""
+              [collectionSize]="pagination.total_items" 
+              [(page)]="page" 
+              [pageSize]="pagination.limit"
+              [rotate]="true" 
+              [ellipses]="false" 
+              [boundaryLinks]="true"
+              (pageChange)="setPage(page)">
+            </ngb-pagination>
+            <ngx-datatable
+                class="material"
+                [rows]="lots | async"
+                [headerHeight]="50"
+                [footerHeight]="50"
+                [rowHeight]="'auto'">
+                <ngx-datatable-column name="id" [width]="100"></ngx-datatable-column>
+                <ngx-datatable-column name="reference" [width]="100"></ngx-datatable-column>
+                <ngx-datatable-column name="section" [width]="100">
+                  <ng-template let-value="value" ngx-datatable-cell-template>
+                    {{value.name}}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="available" [width]="100">
+                  <ng-template let-value="value" ngx-datatable-cell-template>
+                    <div [ngClass]="{'bg-success': value, 'bg-danger': !value}" class="">&nbsp;</div>
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="reserved" [width]="100">
+                  <ng-template let-value="value" ngx-datatable-cell-template>
+                    <i class="material-icons" *ngIf="value">accessible</i>
+                    <i class="material-icons" *ngIf="!value">accessibility</i>
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Action">
+                  <ng-template let-row="row" ngx-datatable-cell-template>
+                    <button md-raised-button color="accent" [disabled]="!row.available" (click)="selectLot(row)">SELECT</button>
+                  </ng-template>
+                </ngx-datatable-column>
+              </ngx-datatable>
+          </md-card>
+          
+          <md-card *ngIf="rentLotTypeForm">
+            <button md-raised-button class="pull-right" color="accent" (click)="clear()">CANCEL</button>
+            <button md-raised-button class="pull-right" color="primary" (click)="backCheckInForm()">BACK</button>
+           
+            <h3>CHECK-IN: Select Rent Type</h3>
+            <div class="row">
+               <div class="col-md-4">
+               <div class="form-group">
+                <label for="rentLotsTypes">Rent Type</label>
+                    <select class="form-control"  [(ngModel)]="selectedRentLotType" required>
+                      <option *ngFor="let type of rentLotsTypes|async" [value]="type.id">{{ type.name }}</option>
+                    </select>
+                </div>
+                <button class="pull-right" md-raised-button  color="accent" [disabled]="!selectedRentLotType" (click)="selectRentTypeLot()">Next</button>
+                </div>
+              </div>
+          </md-card>
+
+          <md-card *ngIf="showDetail">
+           <button md-raised-button class="pull-right" color="accent" (click)="clear()">CANCEL</button>
+           <button md-raised-button class="pull-right" color="primary" (click)="backCheckInForm()">BACK</button>
+           <h3>CHECK-IN: Rent Lot Detail</h3>
+            <div class="row">
+               <div class="col-md-4">
+
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">Rent Detail</div>
+                    <div class="panel-body">
+                      <p>Customer: {{selectedVehicle.customer.firstName}} {{selectedVehicle.customer.lastName}}</p>
+                      <p>PLATE: {{selectedVehicle.plate}}</p>
+                      <p>TYPE: {{selectedVehicle.vehicleType.name}}</p>
+                      <p>BRAND: {{selectedVehicle.brand.name}}</p>
+                      <p>COLOR: <input type="color" value="{{selectedVehicle.color}}" disabled></p>
+                      <p>Rent Type:
+                        <select class="form-control"  [(ngModel)]="selectedRentLotType" disabled>
+                          <option *ngFor="let type of rentLotsTypes|async" [value]="type.id">{{ type.name }}</option>
+                        </select>
+                      </p>
+                      <p>Rent Lot: {{selectedLot.section.name}} - {{selectedLot.reference}}</p>
+                    </div>
+                  </div>
+                  <button md-raised-button class="pull-left" color="accent" (click)="clear()">DISCARD</button>
+                  <button class="pull-right" md-raised-button  color="primary" (click)="checkin()">CONFIRM</button>
+                </div>
+              </div>
+          </md-card>
+        </md-tab>
+        <md-tab  label="OUT - VEHICLE">
+          <md-card *ngIf="checkOutSearchForm" class="page-default">
+          <div class="row">
+             <div class="col-md-3">
+               <h3>Search Vehicle</h3>
+               <div class="form-group">
+                  <div class="form-group">
+                    <input id="typeahead-http" type="text" class="form-control" 
+                    [class.is-invalid]="searchFailed"
+                    (ngModelChange)="selectItem($event)"
+                    [(ngModel)]="model" 
+                    [ngbTypeahead]="search" 
+                    [inputFormatter]="formatter"
+                    [resultFormatter]="formatter"
+                    placeholder="AUX" 
+                    />
+                    <span *ngIf="searching">searching...</span>
+                    <div class="invalid-feedback" *ngIf="searchFailed">Sorry, suggestions could not be loaded.</div>
+                  </div>
+               </div>
+             </div>
+             <div class="col-md-9">
+             <div class="row mt-10">
+              <ngx-datatable
+                class="material"
+                [rows]="vehicle"
+                [headerHeight]="50"
+                [footerHeight]="50"
+                [rowHeight]="'auto'">
+                <ngx-datatable-column name="id" [width]="100"></ngx-datatable-column>
+                <ngx-datatable-column name="customer" [width]="100">
+                  <ng-template let-value="value" ngx-datatable-cell-template>
+                    {{value.firstName}} {{value.lastName}}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="plate" [width]="100"></ngx-datatable-column>
+                <ngx-datatable-column name="brand" [width]="100">
+                  <ng-template let-value="value" ngx-datatable-cell-template>
+                    {{value.name}}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="vehicleType" [width]="100">
+                  <ng-template let-value="value" ngx-datatable-cell-template>
+                    {{value.name}}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Action">
+                  <ng-template let-row="row" ngx-datatable-cell-template>
+                    <button md-raised-button color="accent" (click)="showCheckout(row)">CHECK OUT</button>
+                  </ng-template>
+                </ngx-datatable-column>
+              </ngx-datatable>
+             </div>
+             </div>
+           </div>
+          </md-card>
+
+          <md-card *ngIf="checkoutForm">
+            <button md-raised-button class="pull-right" color="accent" (click)="clear()">CANCEL</button>
+            <button md-raised-button class="pull-right" color="primary" (click)="backSearchCheckout()">BACK</button>
+            <h3>CHECK-OUT: Select RentLot</h3>
+            <ngx-datatable
+                class="material"
+                [rows]="rentlots | async"
+                [headerHeight]="50"
+                [footerHeight]="50"
+                [rowHeight]="'auto'">
+                <ngx-datatable-column name="Customer" prop="vehicle" [width]="100">
+                  <ng-template let-value="value" ngx-datatable-cell-template>
+                    {{value.customer.firstName}} {{value.customer.lastName}}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="vehicle" [width]="100">
+                  <ng-template let-value="value" ngx-datatable-cell-template>
+                    plate: {{value.plate}}, brand: {{value.brand.name}}, type:{{value.vehicleType.name}}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="lot" [width]="100">
+                  <ng-template let-value="value" ngx-datatable-cell-template>
+                    {{value.reference}}, {{value.section.name}}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Action">
+                  <ng-template let-row="row" ngx-datatable-cell-template>
+                    <button md-raised-button color="accent" (click)="selectRentLot(row)">SELECT</button>
+                  </ng-template>
+                </ngx-datatable-column>
+            </ngx-datatable>
+          </md-card>
+
+          <md-card *ngIf="paymentDetail">
+            <button md-raised-button class="pull-right" color="accent" (click)="clear()">CANCEL</button>
+            <h3>CHECK-OUT: Payment Detail</h3>
+            <div class="row">
+               <div class="col-md-4">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">Payment</div>
+                    <div class="panel-body">
+                      <p><strong>Customer:</strong> {{selectedRentlot.vehicle.customer.firstName}} {{selectedRentlot.vehicle.customer.lastName}}</p>
+                      <p><strong>Plate:</strong> {{selectedRentlot.vehicle.plate}}</p>
+                      <p><strong>Rent Lot:</strong> {{selectedRentlot.lot.section.name}} - {{selectedRentlot.lot.reference}}</p>
+                      <p><strong>Amount: </strong>{{selectedRentlot.payment.currency.symbol}}{{selectedRentlot.payment.amount}}</p>
+                      <p><strong>Rentlot Type:</strong> {{selectedRentlot.rentType.name}}</p>
+                      <p><strong>Status:</strong> {{selectedRentlot.payment.paymentStatus.name}}</p>
+                      <p><strong>Payment Type:</strong> {{selectedRentlot.payment.paymentType.name}}</p>
+                    </div>
+                  </div>
+                  <button md-raised-button class="pull-left" color="accent" (click)="clear()">DISCARD</button>
+                  <button class="pull-right" md-raised-button  color="primary" (click)="checkout()">CONFIRM</button>
+                </div>
+              </div>
+          </md-card>
+        </md-tab>
+        <md-tab  label="RENTED">
+          <md-card *ngIf="!selectedRentlot">
+              <ngx-datatable
+                  class="material"
+                  [columnMode]="'flex'"
+                  [rows]="rentlots | async"
+                  [headerHeight]="50"
+                  [footerHeight]="50"
+                  [rowHeight]="'auto'">
+                  <ngx-datatable-column name="Customer" prop="vehicle" [flexGrow]="1">
+                    <ng-template let-value="value" ngx-datatable-cell-template>
+                      {{value.customer.firstName}} {{value.customer.lastName}}
+                    </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="vehicle" [flexGrow]="1">
+                    <ng-template let-value="value" ngx-datatable-cell-template>
+                      plate: {{value.plate}}, brand: {{value.brand.name}}, type:{{value.vehicleType.name}}
+                    </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="lot" [flexGrow]="1">
+                    <ng-template let-value="value" ngx-datatable-cell-template>
+                      {{value.reference}}, {{value.section.name}}
+                    </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Action" [flexGrow]="1">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                      <button md-raised-button color="accent" (click)="showRentLotDetail(row)"><i class="material-icons">visibility</i></button>
+                    </ng-template>
+                  </ngx-datatable-column>
+              </ngx-datatable>
+              <ngb-pagination *ngIf="paginationRentLot.page_counts > 1"
+                class=""
+                [collectionSize]="paginationRentLot.total_items" 
+                [(page)]="page" 
+                [pageSize]="paginationRentLot.limit"
+                [rotate]="true" 
+                [ellipses]="false" 
+                [boundaryLinks]="true"
+                (pageChange)="setPageRentLot(page)">
+              </ngb-pagination>
+          </md-card>
+          <md-card *ngIf="selectedRentlot">           
+            <div class="row">
+               <div class="col-md-6">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading"><h3>Detail</h3></div>
+                    <div class="panel-body">
+                      <p><strong>Customer:</strong> {{selectedRentlot.vehicle.customer.firstName}} {{selectedRentlot.vehicle.customer.lastName}}</p>
+                      <p><strong>Plate:</strong> {{selectedRentlot.vehicle.plate}}</p>
+                      <p><strong>Rent Lot:</strong> {{selectedRentlot.lot.section.name}} - {{selectedRentlot.lot.reference}}</p>
+                      <p><strong>Start Time:</strong> {{selectedRentlot.startTime | date:'dd-MM-yyyy HH:mm a z'}}</p>
+                      <p><strong>End Time:</strong> {{selectedRentlot.currentTime | date:'dd-MM-yyyy HH:mm a z'}}</p>
+                      <p><strong>Total Time:</strong> {{selectedRentlot.totalHours}}</p>
+                      <p><strong>Amount:</strong> {{selectedRentlot.payment.currency.symbol}}{{selectedRentlot.payment.amount}}</p>
+                      <p><strong>Rentlot Type:</strong> {{selectedRentlot.rentType.name}}</p>
+                      <p><strong>Status:</strong> {{selectedRentlot.payment.paymentStatus.name}}</p>
+                      <p><strong>Payment Type:</strong> {{selectedRentlot.payment.paymentType.name}}</p>
+
+                    </div>
+                  </div>
+                  <button md-raised-button class="pull-left" color="accent" (click)="clear()">BACK</button>
+                </div>
+              </div>
+          </md-card>
+        </md-tab>
+      </md-tab-group>
+  </div>
+</div>

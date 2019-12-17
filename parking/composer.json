@@ -1,0 +1,9 @@
+{
+    "require": {
+        "slim/slim": "^3.0",
+        "doctrine/orm": "^2.4",
+        "tuupola/slim-jwt-auth": "^2.3",
+        "firebase/php-jwt": "^4.0",
+        "setasign/fpdf": "1.8.1"
+    }
+}

@@ -1,0 +1,59 @@
+<div class="card">
+  <h4 class="card-header">Audit</h4>
+  <div class="card-body">
+    <div *ngIf="!audit">
+        <ngx-datatable
+            class="material"
+            [rows]=" userAudits | async "
+            [columnMode]="'force'"
+            [headerHeight]="50"
+            [footerHeight]="50"
+            [rowHeight]="'auto'">
+            <ngx-datatable-column name="id"></ngx-datatable-column>
+            <ngx-datatable-column name="User" >
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{value.username}}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="action" >
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{value}}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Action" >
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <button md-raised-button color="accent" (click)="showDetail(row)"><i class="material-icons">visibility</i></button>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+          <ngb-pagination 
+            class=""
+            [collectionSize]="pagination.total_items" 
+            [(page)]="page" 
+            [pageSize]="pagination.limit"
+            [maxSize] = "5"
+            [rotate]="true" 
+            [boundaryLinks]="true"
+            (pageChange)="setPage(page)">
+          </ngb-pagination>
+      </div>
+      
+      <md-card *ngIf="audit">
+      <h2>Detail</h2>
+      <div>
+        <br>
+        <p class="text-md-left"><strong>Action:</strong> {{audit.action}}</p>
+        <p class="text-md-left"><strong>Time:</strong> {{audit.createdAt.date | date:'dd-MM-yyyy HH:mm a z'}}</p>
+        <div class="row">
+          <div class="col-12">
+            <strong>Payload: </strong>
+            <pre>
+            {{audit.meta | json}}
+            </pre>
+          </div>
+        </div>
+          <button md-raised-button color="primary" (click)="back()">Back</button>
+      </div>
+      </md-card>
+  </div>
+</div>

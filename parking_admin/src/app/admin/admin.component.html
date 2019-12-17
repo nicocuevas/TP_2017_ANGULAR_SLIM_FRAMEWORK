@@ -1,0 +1,48 @@
+
+<md-sidenav-container fullscreen>
+
+  <md-sidenav #sidenav class="app-sidenav" mode="side" opened="true">
+    <md-card class="user-sidebar">
+      <div class="row">
+        <div class="col-md-4">
+          <img src="../../assets/images/user.jpg" class="img-fluid" alt="...">
+       </div>
+       <div class="col-md-4">
+        <p class="text-capitalize">{{user.firstName}} {{user.lastName}}</p>
+        <p class="text-uppercase">{{user.role}}</p>
+        <a class="text-lowercase" routerLink="./profile" >Profile</a>
+       </div>
+      </div>
+    </md-card>
+    <md-nav-list>
+          <div *ngIf="user.role=='admin'">
+            <a class="text-uppercase" md-list-item routerLink="./reports" > <i class="material-icons">insert_chart</i>Reports</a>
+            <a class="text-uppercase" md-list-item routerLink="./users" > <i class="material-icons">supervisor_account</i> Users</a>
+            <a class="text-uppercase" md-list-item routerLink="./audit" > <i class="material-icons">adb</i> Audit Users</a>
+            <a class="text-uppercase" md-list-item routerLink="./lots" > <i class="material-icons">view_list</i> Lots</a>
+          </div>
+          <a class="text-uppercase" md-list-item routerLink="./customers" > <i class="material-icons">view_list</i> Customers</a>
+          <a class="text-uppercase" md-list-item routerLink="./parking" > <i class="material-icons">local_parking</i>Manage Parking</a>
+          <a class="text-uppercase" md-list-item (click)="logout()"><i class="material-icons">arrow_back</i>Logout</a>
+          
+    </md-nav-list>
+  </md-sidenav>
+
+  <md-toolbar color="primary">
+    <button class="app-icon-button" (click)="sidenav.toggle()">
+      <i class="material-icons app-toolbar-menu">menu</i>
+    </button>
+
+
+    <span class="app-toolbar-filler"></span>
+    <h3>PARKING - ADMIN</h3>
+  </md-toolbar>
+
+  <div class="admin-content">
+    <md-sidenav-container>
+      <div class="my-content">
+        <router-outlet></router-outlet>
+      </div>
+    </md-sidenav-container>
+  </div>
+</md-sidenav-container>

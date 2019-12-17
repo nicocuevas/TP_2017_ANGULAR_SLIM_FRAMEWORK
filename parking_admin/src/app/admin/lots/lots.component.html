@@ -1,0 +1,92 @@
+<div class="card">
+  <h4 class="card-header">Lots</h4>
+  <div class="card-body">
+        <ngx-datatable
+        *ngIf="!selectedLot"
+        class="material"
+        [rows]="lots | async"
+        [headerHeight]="50"
+        [footerHeight]="50"
+        [rowHeight]="'auto'">
+        <ngx-datatable-column name="id" [width]="100"></ngx-datatable-column>
+        <ngx-datatable-column name="reference" [width]="100"></ngx-datatable-column>
+        <ngx-datatable-column name="section" [width]="100">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            {{value.name}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="available" [width]="100">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <div [ngClass]="{'bg-success': value, 'bg-danger': !value}" class="">&nbsp;</div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="reserved" [width]="100">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <i class="material-icons" *ngIf="value">accessible</i>
+            <i class="material-icons" *ngIf="!value">accessibility</i>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Action">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <button md-raised-button color="accent" (click)="selectLot(row)"><i class="material-icons">mode_edit</i></button>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+      <ngb-pagination *ngIf="pagination.total_items > 0 && !selectedLot"
+          class=""
+          [collectionSize]="pagination.total_items" 
+          [(page)]="page" 
+          [pageSize]="pagination.limit"
+          [rotate]="true" 
+          [ellipses]="false" 
+          [boundaryLinks]="true"
+          (pageChange)="setPage(page)">
+        </ngb-pagination>
+
+    <md-card *ngIf="selectedLot">
+      <form [formGroup]="formView">
+          <!-- form inputs -->
+          <div class="row">
+           <div class="col-md-3">
+              <div class="form-group">
+                <label>Section: {{selectedLot.section.name}}</label>
+              </div>
+              <div class="form-group">
+                <label for="reference">Reference</label>
+                <input type="text" id="reference" class="form-control"
+                       formControlName="reference" required >
+                 <div *ngIf="formErrors.reference" class="alert alert-danger">
+                  {{ formErrors.reference }}
+                  </div>
+              </div>
+              <div class="form-group">
+                <label for="description">Description</label>
+                <input type="text" id="description" class="form-control"
+                       formControlName="description">
+                 <div *ngIf="formErrors.description" class="alert alert-danger">
+                  {{ formErrors.description }}
+                  </div>
+              </div>
+           </div>
+           <div class="col-md-4">
+              <div class="form-group">
+               <md-checkbox formControlName="available">Available</md-checkbox>
+               <md-checkbox formControlName="reserved">Reserved</md-checkbox>
+              </div>
+            </div>
+            <!-- end form inputs -->
+          </div>
+
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+               <button class="pull-right" md-raised-button color="accent" [disabled]="!formView.valid" (click)="save()">Save</button>
+               <button md-raised-button color="accent" (click)="back()">BACK</button>
+              </div>
+            </div>
+          </div>
+        </form>
+    </md-card>
+
+  </div>
+</div>

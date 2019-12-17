@@ -1,0 +1,3 @@
+/parking/vendor/
+/parking/logs/*
+/parking/!/logs/README.md

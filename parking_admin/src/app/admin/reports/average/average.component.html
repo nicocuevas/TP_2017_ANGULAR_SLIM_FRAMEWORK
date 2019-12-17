@@ -1,0 +1,123 @@
+<div class="card">
+  <h4 class="card-header">Average Report</h4>
+  <div class="card-body">
+  <ngb-accordion #acc="ngbAccordion" activeIds="filter">
+  <ngb-panel title="Show Filters"  id="filter">
+    <ng-template  ngbPanelContent>
+      <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+              <label >From</label>
+              <div class="input-group">
+                <input class="form-control" placeholder="yyyy-mm-dd"
+                       name="dpFrom" [(ngModel)]="fromDate" ngbDatepicker #dpFrom="ngbDatepicker">
+                <button class="input-group-addon" (click)="dpFrom.toggle()" type="button">
+                  <i class="material-icons">date_range</i>
+                </button>
+              </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+              <label >To</label>
+              <div class="input-group">
+                <input class="form-control" placeholder="yyyy-mm-dd"
+                       name="dpTo" [(ngModel)]="toDate" ngbDatepicker #dpTo="ngbDatepicker">
+                <button class="input-group-addon" (click)="dpTo.toggle()" type="button">
+                  <i class="material-icons">date_range</i>
+                </button>
+              </div>
+              </div>
+            </div>
+      </div>
+      <div class="row">
+        <div class="col-md-8">
+          <div class="form-group">
+           <button class="pull-left" md-raised-button color="primary" (click)="applyFilters()">Apply</button>
+           <button class="pull-left" md-raised-button color="primary" (click)="download()">Generate Report</button>
+           <a *ngIf="reportUrl" href="{{reportUrl}}" target="_blank">Click Here To download</a>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ngb-panel>
+</ngb-accordion>
+    <md-tab-group>
+      <md-tab label="Billing">
+            <div class="card bg-light mb-3" style="max-width: 20rem;">
+              <div class="card-header">Earn Average</div>
+              <div class="card-body">
+                <h4 class="card-title">{{totalAmountAverage | currency:'ARS'}}</h4>
+              </div>
+            </div>
+      </md-tab>
+      <md-tab label="Vehicles">
+        <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Vehicle</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Amount Average</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let vehicle of vehiclesRow">
+            <th scope="row">{{vehicle.vehicle.id}}</th>
+            <td>{{vehicle.vehicle.plate}}</td>
+            <td>{{vehicle.vehicle.customer.firstName}} {{vehicle.vehicle.customer.lastName}}</td>
+            <td>{{vehicle.amount_average | currency:'ARS'}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ngb-pagination
+          class=""
+          [collectionSize]="vehicles.length" 
+          [(page)]="vehiclesPage" 
+          [pageSize]="5"
+          [rotate]="true" 
+          [ellipses]="false" 
+          [boundaryLinks]="true"
+          (pageChange)="setVehiclesPage(vehiclesPage)">
+      </ngb-pagination>
+      </md-tab>
+      <md-tab label="Rented Lots">
+        <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Lot</th>
+            <th scope="col">Section</th>
+            <th scope="col">Reserved</th>
+            <th scope="col">Amount Average</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let lot of lotsRow">
+            <th scope="row">{{lot.lot.id}}</th>
+            <td>{{lot.lot.reference}}</td>
+            <td>{{lot.lot.section.name}}</td>
+            <td>
+              <i class="material-icons" *ngIf="lot.lot.reserved">accessible</i>
+              <i class="material-icons" *ngIf="!lot.lot.reserved">accessibility</i>
+            </td>
+            <td>{{lot.amount_average | currency:'ARS'}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ngb-pagination
+          class=""
+          [collectionSize]="lots.length" 
+          [(page)]="lotsPage" 
+          [pageSize]="5"
+          [rotate]="true" 
+          [ellipses]="false" 
+          [boundaryLinks]="true"
+          (pageChange)="setLotsPage(lotsPage)">
+      </ngb-pagination>
+      </md-tab>
+    </md-tab-group>
+    <div class="row">
+    </div>
+  </div>
+</div>
